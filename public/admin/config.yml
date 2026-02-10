@@ -1,5 +1,6 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: jaidhyani/effectivearchivist
   branch: main
 
 publish_mode: editorial_workflow
