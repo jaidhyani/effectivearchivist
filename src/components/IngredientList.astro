@@ -15,13 +15,9 @@ const { items } = Astro.props;
     if (item.type === "group_header") {
       return <li class="group-header">{item.group}</li>;
     }
-    const parts: string[] = [];
-    if (item.amount) parts.push(item.amount);
-    if (item.unit) parts.push(item.unit);
-    parts.push(item.name);
     return (
-      <li>
-        {item.amount && <span class="ingredient-amount">{item.amount} {item.unit}</span>}{" "}
+      <li data-base-amount={item.amount || undefined}>
+        {item.amount && <span class="ingredient-amount"><span class="ingredient-amount-value">{item.amount}</span> {item.unit}</span>}{" "}
         {item.name}
         {item.notes && <span class="ingredient-notes"> {item.notes}</span>}
       </li>

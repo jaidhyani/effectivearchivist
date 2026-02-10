@@ -50,7 +50,7 @@ function formatTime(minutes: number): string {
         {prepTime > 0 && <div><dt>Prep:</dt><dd>{formatTime(prepTime)}</dd></div>}
         {cookTime > 0 && <div><dt>Cook:</dt><dd>{formatTime(cookTime)}</dd></div>}
         {totalTime > 0 && <div><dt>Total:</dt><dd>{formatTime(totalTime)}</dd></div>}
-        {servings && <div><dt>Servings:</dt><dd>{servings} {servingsUnit || ""}</dd></div>}
+        {servings && <div><dt>Servings:</dt><dd><span class="servings-value" data-base-servings={servings}>{servings}</span> {servingsUnit || ""}</dd></div>}
       </dl>
 
       {tags.length > 0 && (
@@ -64,8 +64,77 @@ function formatTime(minutes: number): string {
 
     <section class="recipe-section">
       <h2>Ingredients</h2>
+      <div class="recipe-scale">
+        <span class="recipe-scale-label">Scale:</span>
+        <button class="recipe-scale-btn" data-scale="0.5">&frac12;&times;</button>
+        <button class="recipe-scale-btn active" data-scale="1">1&times;</button>
+        <button class="recipe-scale-btn" data-scale="2">2&times;</button>
+        <button class="recipe-scale-btn" data-scale="3">3&times;</button>
+        <input class="recipe-scale-input" type="number" min="0.01" step="any" value="1" aria-label="Custom scale factor">
+      </div>
       <IngredientList items={ingredients} />
     </section>
+
+    <script>
+      function initRecipeScaling() {
+        const buttons = document.querySelectorAll<HTMLButtonElement>('.recipe-scale-btn');
+        const input = document.querySelector<HTMLInputElement>('.recipe-scale-input');
+        if (!buttons.length || !input) return;
+
+        function formatAmount(value: number): string {
+          const rounded = Math.round(value * 100) / 100;
+          return String(rounded);
+        }
+
+        function applyScale(multiplier: number) {
+          document.querySelectorAll<HTMLElement>('[data-base-amount]').forEach(li => {
+            const span = li.querySelector('.ingredient-amount-value');
+            if (!span) return;
+            if (multiplier === 1) {
+              span.textContent = li.dataset.baseAmount!;
+              return;
+            }
+            const base = parseFloat(li.dataset.baseAmount!);
+            if (isNaN(base)) return;
+            span.textContent = formatAmount(base * multiplier);
+          });
+
+          const servingsEl = document.querySelector<HTMLElement>('[data-base-servings]');
+          if (servingsEl) {
+            if (multiplier === 1) {
+              servingsEl.textContent = servingsEl.dataset.baseServings!;
+              return;
+            }
+            const base = parseFloat(servingsEl.dataset.baseServings!);
+            if (!isNaN(base)) servingsEl.textContent = formatAmount(base * multiplier);
+          }
+        }
+
+        function setActiveButton(value: number) {
+          buttons.forEach(btn => {
+            btn.classList.toggle('active', parseFloat(btn.dataset.scale!) === value);
+          });
+        }
+
+        buttons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const value = parseFloat(btn.dataset.scale!);
+            input.value = String(value);
+            setActiveButton(value);
+            applyScale(value);
+          });
+        });
+
+        input.addEventListener('input', () => {
+          const value = parseFloat(input.value);
+          if (!value || value <= 0) return;
+          setActiveButton(value);
+          applyScale(value);
+        });
+      }
+
+      initRecipeScaling();
+    </script>
 
     <section class="recipe-section">
       <h2>Instructions</h2>
