@@ -1,0 +1,79 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import IngredientList from "../../components/IngredientList.astro";
+import InstructionList from "../../components/InstructionList.astro";
+import RecipeJsonLd from "../../components/RecipeJsonLd.astro";
+
+export async function getStaticPaths() {
+  const recipes = await getCollection("recipes");
+  return recipes.map((recipe) => ({
+    params: { slug: recipe.data.slug },
+    props: { recipe },
+  }));
+}
+
+const { recipe } = Astro.props;
+const { Content } = await render(recipe);
+const { title, description, date, category, tags, prepTime, cookTime, totalTime, servings, servingsUnit, ingredients, instructions } = recipe.data;
+
+function formatTime(minutes: number): string {
+  if (!minutes) return "";
+  if (minutes < 60) return `${minutes} min`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
+---
+
+<Base title={title} description={description}>
+  <RecipeJsonLd
+    slot="head"
+    title={title}
+    description={description}
+    date={date}
+    prepTime={prepTime}
+    cookTime={cookTime}
+    totalTime={totalTime}
+    servings={servings}
+    ingredients={ingredients}
+    instructions={instructions}
+    url={Astro.url.href}
+  />
+
+  <article>
+    <div class="recipe-header">
+      <h1>{title}</h1>
+      {category && <span class="category-badge">{category}</span>}
+
+      <dl class="recipe-times">
+        {prepTime > 0 && <div><dt>Prep:</dt><dd>{formatTime(prepTime)}</dd></div>}
+        {cookTime > 0 && <div><dt>Cook:</dt><dd>{formatTime(cookTime)}</dd></div>}
+        {totalTime > 0 && <div><dt>Total:</dt><dd>{formatTime(totalTime)}</dd></div>}
+        {servings && <div><dt>Servings:</dt><dd>{servings} {servingsUnit || ""}</dd></div>}
+      </dl>
+
+      {tags.length > 0 && (
+        <div class="recipe-tags">
+          {tags.map((tag) => (
+            <a href={`/tags/${tag.toLowerCase().replace(/\s+/g, "-").replace(/[()]/g, "")}/`} class="tag">{tag}</a>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <section class="recipe-section">
+      <h2>Ingredients</h2>
+      <IngredientList items={ingredients} />
+    </section>
+
+    <section class="recipe-section">
+      <h2>Instructions</h2>
+      <InstructionList items={instructions} />
+    </section>
+
+    <div class="recipe-narrative">
+      <Content />
+    </div>
+  </article>
+</Base>

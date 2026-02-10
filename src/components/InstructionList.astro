@@ -1,0 +1,29 @@
+---
+type InstructionItem =
+  | { type: "group_header"; group: string }
+  | { type: "step"; text: string };
+
+interface Props {
+  items: InstructionItem[];
+}
+
+const { items } = Astro.props;
+
+let stepNum = 0;
+---
+
+<ol class="instruction-list">
+  {items.map((item) => {
+    if (item.type === "group_header") {
+      stepNum = 0;
+      return <li class="group-header">{item.group}</li>;
+    }
+    stepNum++;
+    return (
+      <li>
+        <span class="step-number">{stepNum}.</span>
+        <Fragment set:html={item.text} />
+      </li>
+    );
+  })}
+</ol>

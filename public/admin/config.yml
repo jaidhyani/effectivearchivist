@@ -1,0 +1,109 @@
+backend:
+  name: git-gateway
+  branch: main
+
+publish_mode: editorial_workflow
+
+media_folder: public/images/recipes
+public_folder: /images/recipes
+
+collections:
+  - name: recipes
+    label: Recipes
+    folder: src/content/recipes
+    create: true
+    slug: "{{slug}}"
+    extension: md
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Slug, name: slug, widget: string }
+      - { label: Date, name: date, widget: datetime, date_format: YYYY-MM-DD, time_format: false }
+      - { label: Description, name: description, widget: text, required: false }
+      - label: Category
+        name: category
+        widget: select
+        options:
+          - Stovetop Dishes
+          - Oven Dishes
+          - No-Cook Dishes
+          - Oven-and-Stovetop Dishes
+      - label: Dietary Tags
+        name: tags
+        widget: select
+        multiple: true
+        required: false
+        options:
+          - Alcohol-free
+          - Allium-free
+          - Bean-free
+          - Cane sugar-free
+          - Chickpea-free
+          - Cucumber-free
+          - Gluten-free
+          - Kosher for Passover (no kitniyot)
+          - Kosher for Passover (with kitniyot)
+          - Lacto-vegetarian
+          - Legume-free
+          - Lentil-free
+          - Low carb
+          - Minimal Cane Sugar
+          - Minimal Gluten
+          - Minimal Onions
+          - Mushroom-free
+          - Onion-free
+          - Pea-free
+          - Peanut-free
+          - Raw vegetable-free
+          - Rice-free
+          - Shellean
+          - Soy-free
+          - Tomato-free
+          - Tree nut-free
+          - Vegan
+          - Vegan Options
+      - { label: Prep Time (minutes), name: prepTime, widget: number, default: 0, value_type: int }
+      - { label: Cook Time (minutes), name: cookTime, widget: number, default: 0, value_type: int }
+      - { label: Total Time (minutes), name: totalTime, widget: number, default: 0, value_type: int }
+      - { label: Servings, name: servings, widget: string, required: false }
+      - { label: Servings Unit, name: servingsUnit, widget: string, required: false }
+      - label: Ingredients
+        name: ingredients
+        widget: list
+        types:
+          - label: Group Header
+            name: group_header
+            widget: object
+            fields:
+              - { label: Group Name, name: group, widget: string }
+          - label: Ingredient
+            name: ingredient
+            widget: object
+            fields:
+              - { label: Amount, name: amount, widget: string, required: false }
+              - { label: Unit, name: unit, widget: string, required: false }
+              - { label: Name, name: name, widget: string }
+              - { label: Notes, name: notes, widget: string, required: false }
+      - label: Instructions
+        name: instructions
+        widget: list
+        types:
+          - label: Group Header
+            name: group_header
+            widget: object
+            fields:
+              - { label: Group Name, name: group, widget: string }
+          - label: Step
+            name: step
+            widget: object
+            fields:
+              - { label: Text, name: text, widget: text }
+      - { label: Body, name: body, widget: markdown }
+
+  - name: pages
+    label: Pages
+    folder: src/content/pages
+    create: false
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Slug, name: slug, widget: string }
+      - { label: Body, name: body, widget: markdown }

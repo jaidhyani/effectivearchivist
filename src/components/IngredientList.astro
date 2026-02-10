@@ -1,0 +1,30 @@
+---
+type IngredientItem =
+  | { type: "group_header"; group: string }
+  | { type: "ingredient"; amount: string; unit: string; name: string; notes?: string };
+
+interface Props {
+  items: IngredientItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="ingredient-list">
+  {items.map((item) => {
+    if (item.type === "group_header") {
+      return <li class="group-header">{item.group}</li>;
+    }
+    const parts: string[] = [];
+    if (item.amount) parts.push(item.amount);
+    if (item.unit) parts.push(item.unit);
+    parts.push(item.name);
+    return (
+      <li>
+        {item.amount && <span class="ingredient-amount">{item.amount} {item.unit}</span>}{" "}
+        {item.name}
+        {item.notes && <span class="ingredient-notes"> {item.notes}</span>}
+      </li>
+    );
+  })}
+</ul>

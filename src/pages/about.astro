@@ -1,0 +1,15 @@
+---
+import { getEntry, render } from "astro:content";
+import Base from "../layouts/Base.astro";
+
+const about = await getEntry("pages", "about");
+if (!about) throw new Error("About page not found");
+const { Content } = await render(about);
+---
+
+<Base title="About" description="About The Effective Archivist - vegan and vegetarian recipes with dietary restriction tags">
+  <div class="about-content">
+    <h1>About</h1>
+    <Content />
+  </div>
+</Base>

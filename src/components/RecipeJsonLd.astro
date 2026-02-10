@@ -1,0 +1,51 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  prepTime: number;
+  cookTime: number;
+  totalTime: number;
+  servings: string;
+  ingredients: Array<{ type: string; amount?: string; unit?: string; name?: string; group?: string }>;
+  instructions: Array<{ type: string; text?: string; group?: string }>;
+  url: string;
+}
+
+const { title, description, date, prepTime, cookTime, totalTime, servings, ingredients, instructions, url } = Astro.props;
+
+function toISODuration(minutes: number): string {
+  if (!minutes) return "";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  let s = "PT";
+  if (h) s += `${h}H`;
+  if (m) s += `${m}M`;
+  return s;
+}
+
+const ingredientStrings = ingredients
+  .filter((i) => i.type === "ingredient")
+  .map((i) => [i.amount, i.unit, i.name].filter(Boolean).join(" "));
+
+const instructionSteps = instructions
+  .filter((i) => i.type === "step")
+  .map((i) => ({ "@type": "HowToStep", text: i.text }));
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Recipe",
+  name: title,
+  description: description || undefined,
+  datePublished: date.toISOString().slice(0, 10),
+  prepTime: toISODuration(prepTime) || undefined,
+  cookTime: toISODuration(cookTime) || undefined,
+  totalTime: toISODuration(totalTime) || undefined,
+  recipeYield: servings || undefined,
+  recipeIngredient: ingredientStrings,
+  recipeInstructions: instructionSteps,
+  url,
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

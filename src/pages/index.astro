@@ -1,0 +1,25 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import RecipeCard from "../components/RecipeCard.astro";
+
+const recipes = await getCollection("recipes");
+recipes.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Base title="The Effective Archivist">
+  <h1>Recipes</h1>
+  <ul class="recipe-grid">
+    {recipes.map((recipe) => (
+      <li>
+        <RecipeCard
+          title={recipe.data.title}
+          slug={recipe.data.slug}
+          description={recipe.data.description}
+          category={recipe.data.category}
+          tags={recipe.data.tags}
+        />
+      </li>
+    ))}
+  </ul>
+</Base>

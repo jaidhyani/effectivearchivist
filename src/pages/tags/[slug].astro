@@ -1,0 +1,44 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import RecipeCard from "../../components/RecipeCard.astro";
+
+export async function getStaticPaths() {
+  const recipes = await getCollection("recipes");
+  const tagMap = new Map<string, { tagName: string; recipes: typeof recipes }>();
+  for (const r of recipes) {
+    for (const tag of r.data.tags) {
+      const slug = tag.toLowerCase().replace(/\s+/g, "-").replace(/[()]/g, "");
+      if (!tagMap.has(slug)) tagMap.set(slug, { tagName: tag, recipes: [] });
+      tagMap.get(slug)!.recipes.push(r);
+    }
+  }
+  return [...tagMap.entries()].map(([slug, { tagName, recipes }]) => ({
+    params: { slug },
+    props: { tagName, recipes },
+  }));
+}
+
+const { tagName, recipes } = Astro.props;
+recipes.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Base title={tagName}>
+  <div class="filter-header">
+    <h1>{tagName}</h1>
+    <p><a href="/tags/">&larr; All tags</a></p>
+  </div>
+  <ul class="recipe-grid">
+    {recipes.map((recipe) => (
+      <li>
+        <RecipeCard
+          title={recipe.data.title}
+          slug={recipe.data.slug}
+          description={recipe.data.description}
+          category={recipe.data.category}
+          tags={recipe.data.tags}
+        />
+      </li>
+    ))}
+  </ul>
+</Base>
