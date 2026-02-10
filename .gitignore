@@ -7,3 +7,6 @@ dist/
 # Migration working files (keep scripts, ignore large exports)
 migration/exports/
 migration/raw-images/
+
+# Local Netlify folder
+.netlify
